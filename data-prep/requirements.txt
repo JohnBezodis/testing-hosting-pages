@@ -1,0 +1,3 @@
+# Add packages here as your scripts grow, e.g.:
+# pandas==2.2.0
+# requests==2.31.0
