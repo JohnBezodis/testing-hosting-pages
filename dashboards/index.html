@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Test</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center;
+           align-items: center; height: 100vh; margin: 0; background: #f4f4f4; }
+    .card { background: white; padding: 2rem 3rem; border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1); text-align: center; }
+    .label { color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .timestamp { font-size: 1.8rem; font-weight: bold; color: #2c3e50; }
+    .status { margin-top: 1rem; font-size: 0.8rem; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="label" id="label">Loading...</div>
+    <div class="timestamp" id="timestamp">—</div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    // Cache-busting: append timestamp to avoid stale JSON after a refresh
+    const url = `./data/datetime_test.json?cb=${Date.now()}`;
+
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById("label").textContent = data.label;
+        // Convert UTC ISO string to local time for display
+        const dt = new Date(data.last_updated);
+        document.getElementById("timestamp").textContent = dt.toLocaleString();
+        document.getElementById("status").textContent =
+          `Raw UTC: ${data.last_updated}`;
+      })
+      .catch(err => {
+        document.getElementById("label").textContent = "Error loading data";
+        document.getElementById("timestamp").textContent = err.message;
+      });
+  </script>
+</body>
+</html>
