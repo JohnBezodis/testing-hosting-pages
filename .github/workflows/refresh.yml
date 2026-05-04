@@ -1,0 +1,38 @@
+name: Refresh Dashboard Data
+
+on:
+  schedule:
+    # Runs every day at 07:00 UTC — use crontab.guru to adjust
+    - cron: "0 7 * * *"
+  workflow_dispatch:  # ← This adds a manual "Run workflow" button in the UI
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # Required to push changes back to the repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r data-prep/requirements.txt  # add this file even if empty for now
+
+      - name: Run data refresh script
+        run: python data-prep/scripts/update_datetime.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboards/data/
+          git diff --staged --quiet || git commit -m "chore: refresh dashboard data [skip ci]"
+          git push
